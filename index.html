@@ -1,0 +1,2053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SBU FinQuiz — April Financial Literacy Month</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================
+     DESIGN TOKENS — SBU Brand Colors (Light Theme)
+     Contrast ratios verified against WCAG 2.1 AA
+     Normal text: 4.5:1 minimum
+     Large text / UI components: 3:1 minimum
+  ============================================ */
+  :root {
+    --bg:               #ffffff;
+    --surface:          #ffffff;
+    --surface2:         #f4f6f8;
+    --border:           #d0d7de;
+    --sbu-red:          #990000;
+    --sbu-red-bright:   #C41E24;
+    --sbu-red-dark:     #6B000D;
+    --sbu-royal:        #00549A;
+    --text-primary:     #111827;      /* 16.8:1 on --bg */
+    --text-secondary:   #374151;      /* 10.7:1 on --bg */
+    --text-muted:       #6b7280;      /* 4.6:1 on --bg */
+    --streak-color:     #991b1b;      /* 7.1:1 on streak-pill bg */
+    --tip-text:         #1e3a5f;      /* 10.2:1 on tip-box bg */
+    --correct-text:     #0e7490;      /* 4.6:1 on correct-panel bg */
+    --wrong-text:       #991b1b;      /* 7.1:1 on wrong-panel bg */
+    --category-text:    #0e7490;      /* 4.6:1 on category-tag bg */
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  body::before { display: none; }
+
+  /* ============================================
+     SKIP LINK — WCAG 2.4.1
+  ============================================ */
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: 16px;
+    z-index: 1000;
+    background: var(--sbu-red-bright);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 0 0 8px 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: top 0.2s;
+  }
+  .skip-link:focus { top: 0; }
+
+  /* ============================================
+     FOCUS STYLES — WCAG 2.4.7
+     3px solid outline, 3:1+ contrast ratio
+  ============================================ */
+  :focus-visible {
+    outline: 3px solid var(--sbu-royal);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  :focus:not(:focus-visible) { outline: none; }
+
+  /* Screen-reader only utility */
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ============================================
+     LAYOUT
+  ============================================ */
+  .wrapper {
+    width: 100%;
+    max-width: 560px;
+    padding: 20px 16px 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ============================================
+     HEADER
+  ============================================ */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .logo {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+  }
+  .logo-top {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted); /* 4.6:1 */
+  }
+  .logo-main {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+  .logo-main .logo-accent { color: var(--sbu-red-bright); }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .streak-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff1f1;
+    border: 1px solid #fca5a5;
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--streak-color); /* 7.1:1 */
+    font-weight: 500;
+  }
+
+  .day-badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-muted); /* 4.6:1 */
+  }
+
+  /* ============================================
+     MONTH LABEL
+  ============================================ */
+  .month-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted); /* 4.6:1 */
+    margin-bottom: 10px;
+  }
+
+  /* ============================================
+     CALENDAR STRIP
+  ============================================ */
+  .calendar-strip {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 28px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .calendar-strip::-webkit-scrollbar { height: 4px; }
+  .calendar-strip::-webkit-scrollbar-track { background: transparent; }
+  .calendar-strip::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .cal-day {
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted); /* 4.6:1 */
+    position: relative;
+    min-width: 34px;
+    min-height: 34px;
+  }
+  .cal-day:hover:not([aria-disabled="true"]) {
+    border-color: var(--sbu-red-bright);
+    color: var(--text-primary);
+  }
+  .cal-day.correct {
+    background: #ecfeff;
+    border-color: #67e8f9;
+    color: var(--correct-text); /* 4.6:1 */
+  }
+  .cal-day.wrong {
+    background: #fff1f1;
+    border-color: #fca5a5;
+    color: var(--wrong-text); /* 7.1:1 */
+  }
+  .cal-day.today {
+    border-color: var(--sbu-red-bright);
+    color: #ffffff;
+    background: var(--sbu-red);
+    font-weight: 700;
+  }
+  .cal-day.today::after {
+    content: '';
+    position: absolute;
+    bottom: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--sbu-red-bright);
+  }
+  .cal-day[aria-disabled="true"] {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* ============================================
+     PROGRESS BAR — WCAG 4.1.3
+  ============================================ */
+  .progress-bar-wrap {
+    height: 5px;
+    background: var(--border);
+    border-radius: 3px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--sbu-red-dark), var(--sbu-red-bright));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+
+  /* ============================================
+     DEMO NAVIGATION
+  ============================================ */
+  .demo-nav {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .nav-btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted); /* 4.6:1 */
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    transition: border-color 0.15s, color 0.15s;
+    min-height: 36px;
+    min-width: 44px;
+  }
+  .nav-btn:hover { border-color: var(--sbu-red-bright); color: var(--text-primary); }
+
+  /* ============================================
+     QUIZ CARD
+  ============================================ */
+  .quiz-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.06);
+  }
+  .quiz-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--sbu-red-dark), var(--sbu-red), var(--sbu-red-bright));
+    border-radius: 20px 20px 0 0;
+    pointer-events: none;
+  }
+
+  .question-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .category-tag {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: #ecfeff;
+    color: var(--category-text); /* 4.6:1 */
+    border: 1px solid #a5f3fc;
+  }
+  .difficulty-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .diff-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+  .diff-dot.active { background: var(--sbu-red-bright); }
+
+  /* h2 — page already has h1 */
+  .question-heading {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.35;
+    margin-bottom: 24px;
+    color: var(--text-primary); /* 16.7:1 */
+    letter-spacing: 0.3px;
+  }
+
+  /* ============================================
+     OPTIONS — radiogroup pattern
+  ============================================ */
+  .options-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+    text-align: left;
+    color: var(--text-primary); /* 16.7:1 */
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.95rem;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    min-height: 52px;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--sbu-red-bright);
+    background: #fff5f5;
+    transform: translateX(3px);
+  }
+  .option-btn:disabled { cursor: not-allowed; }
+  /* Selected */
+  .option-btn.selected {
+    border-color: var(--sbu-royal);
+    background: #eff6ff;
+  }
+  /* Correct */
+  .option-btn.correct {
+    border-color: #0e7490;
+    background: #ecfeff;
+    color: var(--correct-text); /* 4.6:1 */
+  }
+  /* Wrong */
+  .option-btn.wrong {
+    border-color: var(--sbu-red-bright);
+    background: #fff1f1;
+    color: var(--wrong-text); /* 7.1:1 */
+  }
+
+  .option-letter {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 500;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s;
+    color: var(--text-muted);
+  }
+  .option-btn.correct .option-letter  { background: #0e7490; border-color: #0e7490; color: #fff; }
+  .option-btn.wrong .option-letter    { background: var(--sbu-red-bright); border-color: var(--sbu-red-bright); color: #fff; }
+
+  .option-fill {
+    position: absolute;
+    inset: 0;
+    background: #0e7490;
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease, opacity 0.4s;
+    z-index: 0;
+    border-radius: 10px;
+    pointer-events: none;
+  }
+  .option-btn.correct .option-fill { transform: scaleX(1); opacity: 0.04; }
+
+  .option-text {
+    position: relative;
+    z-index: 1;
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  /* ============================================
+     SUBMIT BUTTON
+  ============================================ */
+  .submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--sbu-red);
+    color: #ffffff; /* 5.9:1 on --sbu-red */
+    border: none;
+    border-radius: 12px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    min-height: 48px;
+  }
+  .submit-btn:hover:not(:disabled) { background: var(--sbu-red-bright); transform: translateY(-1px); }
+  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* ============================================
+     EXPLANATION PANEL
+  ============================================ */
+  .explanation-panel {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    display: none;
+  }
+  .explanation-panel.show { display: block; animation: slideUp 0.35s ease; }
+  .explanation-panel.correct-panel {
+    background: #f0fdfe;
+    border: 1px solid #a5f3fc;
+  }
+  .explanation-panel.wrong-panel {
+    background: #fff8f8;
+    border: 1px solid #fca5a5;
+  }
+  .explanation-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    line-height: 1.3;
+  }
+  .explanation-header.correct-h { color: var(--correct-text); /* 4.6:1 */ }
+  .explanation-header.wrong-h   { color: var(--wrong-text);   /* 4.9:1 */ }
+  .explanation-text {
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: var(--text-secondary); /* 7.2:1 */
+  }
+  .tip-box {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: #eff6ff;
+    border-left: 3px solid var(--sbu-royal);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.875rem;
+    color: var(--tip-text); /* 10.2:1 */
+    line-height: 1.55;
+  }
+
+  /* ============================================
+     RESULT SCREEN
+  ============================================ */
+  .result-screen {
+    text-align: center;
+    padding: 20px 0;
+    display: none;
+  }
+  .result-screen.show { display: block; }
+
+  .result-heading {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 2.2rem;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .result-heading.win  { color: var(--sbu-red); /* #990000 — 8.5:1 on white ✅ */ }
+  .result-heading.lose { color: var(--text-secondary); /* 10.7:1 ✅ */ }
+
+  .result-subtitle {
+    color: var(--text-secondary); /* 7.2:1 */
+    font-size: 0.95rem;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    min-width: 85px;
+  }
+  .stat-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.9rem;
+    color: var(--sbu-red); /* #990000 — 8.5:1 on white ✅ */
+    display: block;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--text-muted); /* 4.6:1 */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ============================================
+     SCORE GRID
+  ============================================ */
+  .score-grid {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    margin: 16px 0;
+    flex-wrap: wrap;
+  }
+  .score-square {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    font-family: 'DM Mono', monospace;
+  }
+  .score-square.sq-win  { background: #ecfeff;          color: #0e7490;             border: 1px solid #67e8f9; }
+  .score-square.sq-lose { background: #fff1f1;          color: var(--wrong-text);   border: 1px solid #fca5a5; }
+  .score-square.sq-empty{ background: var(--surface2);  color: var(--text-muted);   border: 1px solid var(--border); }
+
+  /* ============================================
+     SHARE BUTTONS
+  ============================================ */
+  .share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    color: var(--text-primary); /* 16.7:1 */
+    border-radius: 10px;
+    padding: 11px 18px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    margin: 4px;
+    min-height: 44px;
+  }
+  .share-btn:hover { border-color: var(--sbu-red-bright); }
+  .share-btn.primary { background: var(--sbu-red); color: #ffffff; border-color: var(--sbu-red); }
+  .share-btn.primary:hover { background: var(--sbu-red-bright); border-color: var(--sbu-red-bright); }
+
+  .share-result-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 12px 0;
+    color: var(--text-secondary);
+    text-align: left;
+    display: none;
+    white-space: pre-wrap;
+    line-height: 1.6;
+  }
+  .share-result-text.show { display: block; }
+
+  /* ============================================
+     ALREADY PLAYED
+  ============================================ */
+  .already-played {
+    text-align: center;
+    padding: 30px 10px;
+    display: none;
+  }
+  .already-played.show { display: block; }
+  .already-played-heading {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+  }
+  .already-played-sub {
+    color: var(--text-secondary); /* 7.2:1 */
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+  }
+  .next-label {
+    color: var(--text-muted); /* 4.6:1 */
+    font-size: 0.8rem;
+    margin-bottom: 4px;
+  }
+  .next-quiz-timer {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.4rem;
+    color: var(--sbu-red); /* #990000 — 8.5:1 on white ✅ */
+    margin: 8px 0 16px;
+    letter-spacing: 2px;
+  }
+
+  /* ============================================
+     INTRO SCREEN
+  ============================================ */
+  .intro-screen { text-align: center; padding: 20px 0; }
+  .intro-screen h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    margin-bottom: 8px;
+    color: var(--sbu-red); /* #990000 — 8.5:1 on white ✅ */
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .intro-screen > p {
+    color: var(--text-secondary); /* 7.2:1 */
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .intro-features {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+    text-align: left;
+    list-style: none;
+  }
+  .intro-feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: var(--text-secondary); /* 7.2:1 */
+    line-height: 1.4;
+  }
+  .start-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--sbu-red);
+    color: #ffffff; /* 5.9:1 */
+    border: none;
+    border-radius: 12px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    min-height: 48px;
+  }
+  .start-btn:hover { background: var(--sbu-red-bright); transform: translateY(-1px); }
+
+  /* ============================================
+     TOAST — WCAG 4.1.3 status messages
+  ============================================ */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text-primary);
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    color: #ffffff;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 200;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ============================================
+     CONFETTI (decorative)
+  ============================================ */
+  .confetti-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    opacity: 0;
+    animation: confettiFall 2.5s ease-in forwards;
+  }
+
+  /* ============================================
+     FOOTER
+  ============================================ */
+  .footer-note {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted); /* 4.6:1 */
+    margin-top: 24px;
+    line-height: 1.7;
+  }
+  .footer-copy {
+    font-size: 0.75rem;
+    color: var(--text-muted); /* 4.6:1 — raised from prior #4a6a85 which failed */
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* ============================================
+     ANIMATIONS
+  ============================================ */
+  @keyframes confettiFall {
+    0%   { transform: translateY(-20px) rotate(0deg);   opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0);    }
+  }
+  @keyframes bounce {
+    0%, 100% { transform: scale(1);   }
+    50%       { transform: scale(1.2); }
+  }
+  @keyframes shake {
+    0%, 100%  { transform: translateX(0);   }
+    20%, 60%  { transform: translateX(-6px); }
+    40%, 80%  { transform: translateX(6px);  }
+  }
+  .shake { animation: shake 0.4s ease; }
+
+  /* ============================================
+     REDUCED MOTION — WCAG 2.3.3
+  ============================================ */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration:       0.01ms !important;
+      animation-iteration-count: 1     !important;
+      transition-duration:      0.01ms !important;
+    }
+    .confetti-piece { display: none !important; }
+  }
+
+  /* ============================================
+     REVIEW BANNER
+  ============================================ */
+  .review-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    border-radius: 10px;
+    padding: 9px 14px;
+    margin-bottom: 18px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #78350f;      /* 9.2:1 on #fffbeb ✅ */
+    letter-spacing: 0.3px;
+  }
+  .review-banner svg { color: #92400e; flex-shrink: 0; }
+
+  /* ============================================
+     RESPONSIVE
+  ============================================ */
+  @media (max-width: 480px) {
+    .question-heading { font-size: 1.15rem; }
+    .stats-row { gap: 10px; }
+    .stat-box  { padding: 10px 12px; min-width: 72px; }
+    .share-btn { font-size: 0.82rem; padding: 10px 12px; }
+  }
+  /* ============================================
+     SVG ICONS
+  ============================================ */
+  .icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
+  .icon-sm  { width: 0.95em; height: 0.95em; }
+  .icon-md  { width: 1.25em; height: 1.25em; }
+  .icon-lg  { width: 1.75em; height: 1.75em; }
+  .icon-xl  { width: 2.5em;  height: 2.5em;  }
+  .icon-xxl { width: 3.5em;  height: 3.5em;  }
+
+  /* Result icon container */
+  .result-icon-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+  .result-icon-circle {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .result-icon-circle.win  { background: #fff1f2; border: 2px solid #fda4af; color: var(--sbu-red); }
+  .result-icon-circle.lose { background: #f0fdfe; border: 2px solid #a5f3fc; color: #0e7490; }
+
+  /* Already-played icon */
+  .played-icon-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+  .played-icon-circle {
+    width: 68px; height: 68px;
+    border-radius: 50%;
+    background: #f0fdfe;
+    border: 2px solid #a5f3fc;
+    color: #0e7490;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Streak icon in pill */
+  .streak-icon { color: var(--streak-color); }
+
+  /* Feat icons in intro list */
+  .feat-icon-wrap {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: #fff1f2;
+    border: 1px solid #fda4af;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    color: var(--sbu-red);
+  }
+
+  /* Tip icon */
+  .tip-icon { color: var(--sbu-royal); flex-shrink: 0; }
+  .tip-box  { display: flex; align-items: flex-start; gap: 8px; }
+  .tip-text { flex: 1; }
+
+</style>
+</head>
+<body>
+
+<!-- SVG Icon Sprite — all icons aria-hidden, referenced via <use> -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none;" aria-hidden="true">
+  <!-- flame / streak -->
+  <symbol id="icon-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2c0 0-5 4-5 9a5 5 0 0 0 10 0c0-2.5-1.5-4.5-2-5.5 0 0-1 3-3 3-1.5 0-2.5-1.5-2.5-3C9.5 4.5 12 2 12 2z"/>
+  </symbol>
+  <!-- calendar -->
+  <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+    <line x1="16" y1="2" x2="16" y2="6"/>
+    <line x1="8"  y1="2" x2="8"  y2="6"/>
+    <line x1="3"  y1="10" x2="21" y2="10"/>
+  </symbol>
+  <!-- book-open -->
+  <symbol id="icon-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+  </symbol>
+  <!-- trophy -->
+  <symbol id="icon-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="8 7 4 7 4 3 20 3 20 7 16 7"/>
+    <path d="M12 17v4"/>
+    <path d="M8 21h8"/>
+    <path d="M16 7a4 4 0 0 1-8 0"/>
+    <path d="M4 7c0 4 2.5 7 8 8 5.5-1 8-4 8-8"/>
+  </symbol>
+  <!-- dollar-sign (money) -->
+  <symbol id="icon-dollar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="12" y1="1" x2="12" y2="23"/>
+    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+  </symbol>
+  <!-- check-circle (correct) -->
+  <symbol id="icon-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+    <polyline points="22 4 12 14.01 9 11.01"/>
+  </symbol>
+  <!-- x-circle (wrong) -->
+  <symbol id="icon-x-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <line x1="15" y1="9" x2="9" y2="15"/>
+    <line x1="9"  y1="9" x2="15" y2="15"/>
+  </symbol>
+  <!-- clipboard (copy) -->
+  <symbol id="icon-clipboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+  </symbol>
+  <!-- clock (timer) -->
+  <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <polyline points="12 6 12 12 16 14"/>
+  </symbol>
+  <!-- star (result win) -->
+  <symbol id="icon-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+  </symbol>
+  <!-- lightbulb (tip) -->
+  <symbol id="icon-lightbulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="9"  y1="18" x2="15" y2="18"/>
+    <line x1="10" y1="22" x2="14" y2="22"/>
+    <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>
+  </symbol>
+  <!-- chevron-left -->
+  <symbol id="icon-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="15 18 9 12 15 6"/>
+  </symbol>
+  <!-- chevron-right -->
+  <symbol id="icon-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="9 18 15 12 9 6"/>
+  </symbol>
+  <!-- graduation cap (already played) -->
+  <symbol id="icon-graduation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+    <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+  </symbol>
+  <!-- bar-chart (stats) -->
+  <symbol id="icon-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="18" y1="20" x2="18" y2="10"/>
+    <line x1="12" y1="20" x2="12" y2="4"/>
+    <line x1="6"  y1="20" x2="6"  y2="14"/>
+  </symbol>
+</svg>
+
+<!-- Skip Navigation (WCAG 2.4.1) -->
+<a class="skip-link" href="#quiz-main">Skip to quiz content</a>
+
+<!-- Polite live region for dynamic SR announcements (WCAG 4.1.3) -->
+<div id="liveRegion" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+<!-- Confetti — purely decorative, hidden from AT -->
+<div class="confetti-container" id="confettiContainer" aria-hidden="true"></div>
+
+<!-- Toast notifications (role="status" = polite live region) -->
+<div class="toast" id="toast" role="status"></div>
+
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <header role="banner">
+    <!-- Visible text serves as accessible name; logo divs are aria-hidden to avoid redundancy -->
+    <div class="logo" aria-label="SBU FinQuiz — Stony Brook University College of Business">
+      <div class="logo-top" aria-hidden="true">Stony Brook University · College of Business</div>
+      <div class="logo-main" aria-hidden="true">Fin<span class="logo-accent">Quiz</span></div>
+    </div>
+    <div class="header-right">
+      <div class="streak-pill" aria-live="polite" aria-label="Current streak">
+        <svg class="icon icon-sm streak-icon" aria-hidden="true"><use href="#icon-flame"/></svg>
+        <span id="streakCount">0</span><span> day streak</span>
+      </div>
+      <div class="day-badge" aria-live="polite" aria-label="Current day in April">
+        Apr <span id="currentDayBadge">1</span>
+      </div>
+    </div>
+  </header>
+
+  <p class="month-label">SBU College of Business · April Financial Literacy Month</p>
+
+  <!-- CALENDAR STRIP — group of day-selection buttons -->
+  <div
+    class="calendar-strip"
+    id="calendarStrip"
+    role="group"
+    aria-label="April quiz calendar — select a completed day to review"
+  ></div>
+
+  <!-- PROGRESS BAR (WCAG 4.1.2 — name, role, value) -->
+  <div
+    class="progress-bar-wrap"
+    role="progressbar"
+    aria-valuemin="0"
+    aria-valuemax="30"
+    aria-valuenow="0"
+    aria-valuetext="0 of 30 days completed"
+    aria-label="Monthly progress"
+    id="progressBarWrap"
+  >
+    <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+  </div>
+
+  <!-- DEMO NAVIGATION -->
+  <nav class="demo-nav" aria-label="Browse quiz days">
+    <button class="nav-btn" id="prevBtn" onclick="prevDay()" aria-label="Previous day">
+      <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-chevron-left"/></svg> Prev
+    </button>
+    <button class="nav-btn" id="currentDayNav" aria-label="Currently viewing Day 1">Day 1</button>
+    <button class="nav-btn" id="nextBtn" onclick="nextDay()" aria-label="Next day">
+      Next <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-chevron-right"/></svg>
+    </button>
+  </nav>
+
+  <!-- MAIN QUIZ CONTENT -->
+  <main id="quiz-main" tabindex="-1" aria-label="Daily financial literacy quiz">
+    <article class="quiz-card" id="quizCard">
+
+      <!-- INTRO SCREEN -->
+      <section id="introScreen" aria-labelledby="introHeading">
+        <h2 id="introHeading">Welcome to FinQuiz!</h2>
+        <p>One question per day, every day in April. Build your financial knowledge one quiz at a time.</p>
+        <ul class="intro-features" aria-label="Quiz features">
+          <li class="intro-feature">
+            <span class="feat-icon-wrap" aria-hidden="true"><svg class="icon icon-md"><use href="#icon-calendar"/></svg></span>
+            <span>30 days, 30 questions — one per day</span>
+          </li>
+          <li class="intro-feature">
+            <span class="feat-icon-wrap" aria-hidden="true"><svg class="icon icon-md"><use href="#icon-flame"/></svg></span>
+            <span>Build streaks by answering daily</span>
+          </li>
+          <li class="intro-feature">
+            <span class="feat-icon-wrap" aria-hidden="true"><svg class="icon icon-md"><use href="#icon-book"/></svg></span>
+            <span>Learn with explanations for every answer</span>
+          </li>
+          <li class="intro-feature">
+            <span class="feat-icon-wrap" aria-hidden="true"><svg class="icon icon-md"><use href="#icon-trophy"/></svg></span>
+            <span>Share your score with friends</span>
+          </li>
+        </ul>
+        <button class="start-btn" id="startBtn" onclick="startQuiz()">
+          Start Today's Quiz
+        </button>
+      </section>
+
+      <!-- QUESTION SCREEN -->
+      <section id="questionScreen" aria-labelledby="questionHeading" style="display:none;">
+
+        <!-- Review mode banner — visible only when revisiting a completed past day -->
+        <div class="review-banner" id="reviewBanner" style="display:none;" role="note" aria-label="Review mode">
+          <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-calendar"/></svg>
+          <span id="reviewBannerText">Reviewing Day 1</span>
+        </div>
+
+        <div class="question-meta">
+          <span class="category-tag" id="categoryTag"></span>
+          <!-- Difficulty: visual dots + SR text via aria-label on wrapper -->
+          <div class="difficulty-wrap" id="difficultyDots" aria-label="Difficulty: Beginner">
+            <!-- dots injected by JS, each aria-hidden -->
+          </div>
+        </div>
+
+        <!-- h2 — respects page heading hierarchy (page h1 exists upstream) -->
+        <h2 class="question-heading" id="questionHeading"></h2>
+
+        <!-- Options use radiogroup / radio pattern for AT -->
+        <div
+          class="options-group"
+          id="optionsGrid"
+          role="radiogroup"
+          aria-labelledby="questionHeading"
+          aria-required="true"
+        ></div>
+
+        <button
+          class="submit-btn"
+          id="submitBtn"
+          onclick="submitAnswer()"
+          disabled
+          aria-disabled="true"
+        >Submit Answer</button>
+
+        <!-- Explanation — announced via aria-live="polite" -->
+        <div
+          class="explanation-panel"
+          id="explanationPanel"
+          role="region"
+          aria-label="Answer explanation"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <div class="explanation-header" id="explanationHeader"></div>
+          <p class="explanation-text" id="explanationText"></p>
+          <div class="tip-box" id="tipBox"></div>
+        </div>
+
+      </section>
+
+      <!-- RESULT SCREEN -->
+      <section
+        class="result-screen"
+        id="resultScreen"
+        aria-labelledby="resultHeading"
+      >
+        <div class="result-icon-wrap">
+          <div class="result-icon-circle" id="resultIconCircle" aria-hidden="true">
+            <svg class="icon icon-xl" id="resultIcon"><use href="#icon-star"/></svg>
+          </div>
+        </div>
+        <h2 class="result-heading" id="resultHeading"></h2>
+        <p class="result-subtitle" id="resultSubtitle"></p>
+
+        <div class="stats-row" role="group" aria-label="Your statistics">
+          <div class="stat-box">
+            <span class="stat-num" id="statCorrect">0</span>
+            <span class="stat-label" id="statCorrectLabel">Correct</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-num" id="statStreak">0</span>
+            <span class="stat-label" id="statStreakLabel">Streak</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-num" id="statTotal">0</span>
+            <span class="stat-label" id="statTotalLabel">Played</span>
+          </div>
+        </div>
+
+        <!-- Score grid is decorative; aria-label on container describes it for SR -->
+        <div
+          class="score-grid"
+          id="scoreGrid"
+          role="img"
+          aria-label="Score grid showing April quiz results"
+        ></div>
+
+        <div role="group" aria-label="Share your result">
+          <button class="share-btn primary" onclick="copyShare()">
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-clipboard"/></svg>
+            Copy Result
+          </button>
+        </div>
+
+        <!-- Fallback text for copy — focusable for keyboard users -->
+        <div
+          class="share-result-text"
+          id="shareText"
+          aria-label="Shareable result text — select all and copy"
+          tabindex="-1"
+        ></div>
+      </section>
+
+      <!-- ALREADY PLAYED -->
+      <section
+        class="already-played"
+        id="alreadyPlayed"
+        aria-labelledby="alreadyPlayedHeading"
+      >
+        <div class="played-icon-wrap">
+          <div class="played-icon-circle" aria-hidden="true">
+            <svg class="icon icon-xl"><use href="#icon-graduation"/></svg>
+          </div>
+        </div>
+        <h2 class="already-played-heading" id="alreadyPlayedHeading">Already Completed!</h2>
+        <p class="already-played-sub">
+          Come back tomorrow for Day <span id="nextDayNum"></span>
+        </p>
+        <p class="next-label">Next quiz in</p>
+        <!-- aria-live="off" prevents constant SR interruption from ticking timer -->
+        <div
+          class="next-quiz-timer"
+          id="nextQuizTimer"
+          aria-live="off"
+          aria-label="Countdown to next quiz"
+        >--:--:--</div>
+        <div>
+          <button class="share-btn primary" onclick="copyShare()">
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-clipboard"/></svg>
+            Share Yesterday's Result
+          </button>
+        </div>
+      </section>
+
+    </article>
+  </main>
+
+  <footer class="footer-note" role="contentinfo">
+    Stony Brook University · College of Business<br>
+    April Financial Literacy Month · One question per day
+    <span class="footer-copy">© Stony Brook University</span>
+  </footer>
+
+</div>
+
+<script>
+// ========================
+// 30-DAY QUESTION BANK
+// ========================
+const questions = [
+  {
+    category:"Budgeting", difficulty:1,
+    question:"The 50/30/20 budgeting rule divides your after-tax income into three categories. What does the '20' represent?",
+    options:["Entertainment and dining","Housing and utilities","Savings and debt repayment","Transportation and insurance"],
+    answer:2,
+    explanation:"The '20' in the 50/30/20 rule represents savings and debt repayment. This includes emergency funds, retirement contributions, and paying off debt faster than required.",
+    tip:"Automate your 20% savings on payday so you never accidentally spend it first!"
+  },
+  {
+    category:"Credit", difficulty:1,
+    question:"What is the most important factor in calculating your FICO credit score?",
+    options:["Credit utilization ratio","Payment history","Length of credit history","Number of credit accounts"],
+    answer:1,
+    explanation:"Payment history makes up 35% of your FICO score — the largest single factor. Even one missed payment can significantly drop your score and stay on your report for 7 years.",
+    tip:"Set up autopay for at least the minimum payment to never miss a due date."
+  },
+  {
+    category:"Investing", difficulty:2,
+    question:"What does 'compound interest' mean?",
+    options:["Interest charged by multiple lenders","Earning interest on your original principal only","Earning interest on both your principal and previously earned interest","A fixed interest rate over time"],
+    answer:2,
+    explanation:"Compound interest means you earn interest on your principal and on the interest you have already earned. Over time, this creates exponential growth — often called the 8th wonder of the world.",
+    tip:"Start investing early. $100 per month at 7% return from age 25 equals approximately $262,000 by age 65. Starting at 35 yields only about $121,000."
+  },
+  {
+    category:"Emergency Fund", difficulty:1,
+    question:"Financial experts typically recommend keeping how many months of expenses in an emergency fund?",
+    options:["1 to 2 months","3 to 6 months","8 to 10 months","12 to 18 months"],
+    answer:1,
+    explanation:"3 to 6 months of living expenses is the standard recommendation. This gives you a safety net for job loss, medical bills, or unexpected repairs without going into debt.",
+    tip:"Keep your emergency fund in a high-yield savings account (HYSA) to earn interest while keeping it accessible."
+  },
+  {
+    category:"Taxes", difficulty:2,
+    question:"What is a 'tax deduction'?",
+    options:["Money the government gives you back","An amount subtracted from your taxable income","A penalty for filing late","The total tax you owe"],
+    answer:1,
+    explanation:"A tax deduction reduces your taxable income, which lowers the amount of income tax you owe. For example, if you are in the 22% bracket and take a $1,000 deduction, you save $220 in taxes.",
+    tip:"Common deductions include mortgage interest, student loan interest, and contributions to traditional IRAs."
+  },
+  {
+    category:"Retirement", difficulty:1,
+    question:"What is an employer '401(k) match'?",
+    options:["Matching your investment choices","Free money your employer adds when you contribute to your 401(k)","A tax penalty on withdrawals","A required retirement withdrawal"],
+    answer:1,
+    explanation:"An employer match is essentially free money. If your employer matches 50% up to 6% of your salary, you should always contribute at least 6% to capture the full match — it is an instant 50% return.",
+    tip:"Not taking your full employer match means leaving part of your compensation on the table. Always contribute enough to get the full match!"
+  },
+  {
+    category:"Debt", difficulty:1,
+    question:"The 'Debt Avalanche' method saves the most money overall. What does it prioritize?",
+    options:["Paying off the smallest balance first","Paying off the highest interest rate first","Paying equal amounts to all debts","Paying off the newest debt first"],
+    answer:1,
+    explanation:"The Debt Avalanche method targets the highest interest rate debt first, saving you the most money in interest over time. While the Debt Snowball (smallest balance first) provides psychological wins, the Avalanche is mathematically superior.",
+    tip:"List all your debts by interest rate. Make minimums on all, then put every extra dollar toward the highest-rate debt."
+  },
+  {
+    category:"Banking", difficulty:1,
+    question:"What does FDIC insurance protect you against?",
+    options:["Stock market losses","Fraud on your debit card","Bank failure — your deposits up to $250,000","All financial losses"],
+    answer:2,
+    explanation:"FDIC (Federal Deposit Insurance Corporation) insures your deposits up to $250,000 per depositor per bank if a bank fails. Your money in checking and savings accounts is protected.",
+    tip:"If you have more than $250,000, spread it across multiple banks to ensure full FDIC coverage."
+  },
+  {
+    category:"Investing", difficulty:2,
+    question:"What is 'diversification' in investing?",
+    options:["Investing all money in one stock for maximum returns","Spreading investments across different assets to reduce risk","Only investing in government bonds","Changing investments every week"],
+    answer:1,
+    explanation:"Diversification means spreading your investments across different asset types, sectors, and geographies. If one investment drops, others may rise, reducing your overall risk.",
+    tip:"Index funds and ETFs are an easy way to instantly diversify — one fund can hold hundreds of stocks."
+  },
+  {
+    category:"Credit", difficulty:2,
+    question:"Your credit utilization ratio is recommended to stay below what percentage?",
+    options:["50%","75%","30%","10%"],
+    answer:2,
+    explanation:"Keeping your credit utilization below 30% is recommended for a healthy credit score. Credit utilization makes up 30% of your FICO score. Using less of your available credit signals financial responsibility.",
+    tip:"Pay your credit card balance before the statement closing date (not just the due date) to lower the reported utilization."
+  },
+  {
+    category:"Investing", difficulty:2,
+    question:"What is an 'index fund'?",
+    options:["A fund managed actively by experts to beat the market","A fund that tracks a market index like the S&P 500","A savings account with variable interest","A government bond fund"],
+    answer:1,
+    explanation:"An index fund passively tracks a market index (like the S&P 500). Because it is not actively managed, fees are very low. Studies consistently show most actively managed funds underperform index funds over time.",
+    tip:"The S&P 500 has historically returned approximately 10% annually. Low-cost index funds are Warren Buffett's recommendation for most investors."
+  },
+  {
+    category:"Budgeting", difficulty:1,
+    question:"What is a 'zero-based budget'?",
+    options:["Having no money in your account","Saving zero dollars each month","Assigning every dollar of income a purpose so income minus expenses equals zero","Spending everything you earn"],
+    answer:2,
+    explanation:"In a zero-based budget, every dollar is assigned a job — spending, saving, or investing — so your income minus all allocations equals zero. You are intentional with every dollar rather than wondering where it went.",
+    tip:"Apps like YNAB (You Need A Budget) are built specifically for zero-based budgeting."
+  },
+  {
+    category:"Insurance", difficulty:2,
+    question:"What is a 'deductible' in an insurance policy?",
+    options:["The monthly premium you pay","The maximum your insurance will ever pay","The amount you pay out-of-pocket before insurance kicks in","A discount for safe driving"],
+    answer:2,
+    explanation:"A deductible is what you pay before your insurance starts covering costs. With a $1,000 deductible and a $5,000 claim, you pay $1,000 and insurance pays $4,000.",
+    tip:"Higher deductibles mean lower monthly premiums. This works well if you have a solid emergency fund to cover the deductible."
+  },
+  {
+    category:"Taxes", difficulty:2,
+    question:"What is the difference between a tax credit and a tax deduction?",
+    options:["They are the same thing","A tax credit reduces taxable income; a deduction reduces taxes owed","A tax deduction reduces taxable income; a credit directly reduces taxes owed","Credits are only for businesses"],
+    answer:2,
+    explanation:"A deduction reduces your taxable income (you save based on your tax rate). A tax credit directly reduces your tax bill dollar-for-dollar. Credits are generally more valuable — a $1,000 credit saves you $1,000.",
+    tip:"Look for credits like the Child Tax Credit, Earned Income Tax Credit, or Education Credits — they are more powerful than deductions."
+  },
+  {
+    category:"Retirement", difficulty:2,
+    question:"What is the key difference between a Traditional IRA and a Roth IRA?",
+    options:["Roth IRA has higher contribution limits","Traditional IRA contributions may be tax-deductible now; Roth IRA withdrawals are tax-free in retirement","Roth IRA is only for self-employed people","Traditional IRA has no withdrawal penalties"],
+    answer:1,
+    explanation:"Traditional IRA: you may get a tax deduction now, but pay taxes on withdrawals in retirement. Roth IRA: you contribute after-tax money, but qualified withdrawals in retirement are 100% tax-free.",
+    tip:"Generally, if you expect to be in a higher tax bracket in retirement, a Roth IRA is better. If you are in a higher bracket now, a Traditional IRA may be better."
+  },
+  {
+    category:"Banking", difficulty:1,
+    question:"What is a 'high-yield savings account' (HYSA)?",
+    options:["A risky investment account","A savings account that typically offers much higher interest rates than traditional banks","A checking account with rewards","A CD with penalties for early withdrawal"],
+    answer:1,
+    explanation:"HYSAs typically offer 10 to 25 times more interest than traditional bank savings accounts. They are usually offered by online banks with lower overhead costs. Your money remains FDIC insured and accessible.",
+    tip:"Great for your emergency fund or short-term savings goals. Look for rates above 4% APY."
+  },
+  {
+    category:"Debt", difficulty:2,
+    question:"What is the 'Debt Snowball' method?",
+    options:["Paying the highest interest debt first","Consolidating all debt into one loan","Paying the smallest balance debt first for psychological wins","Adding more debt before paying it off"],
+    answer:2,
+    explanation:"The Debt Snowball method focuses on paying off the smallest balance first, regardless of interest rate. Each paid-off debt gives a psychological boost and frees up cash to attack the next debt — like a snowball gaining size.",
+    tip:"Dave Ramsey popularized this method. While Avalanche saves more money, Snowball can help people stay motivated who struggle with debt payoff."
+  },
+  {
+    category:"Investing", difficulty:3,
+    question:"What does 'dollar-cost averaging' mean?",
+    options:["Buying investments only when prices are low","Investing a fixed dollar amount at regular intervals regardless of market price","Converting foreign currency to USD","Averaging down on losing stocks only"],
+    answer:1,
+    explanation:"Dollar-cost averaging (DCA) means investing a fixed amount regularly — for example, $200 every month — regardless of market conditions. When prices are low, you buy more shares; when high, fewer. This reduces the impact of volatility.",
+    tip:"Contributing to your 401(k) every paycheck is dollar-cost averaging. It is one of the best habits you can build."
+  },
+  {
+    category:"Credit", difficulty:1,
+    question:"How long does a Chapter 7 bankruptcy stay on your credit report?",
+    options:["2 years","5 years","7 years","10 years"],
+    answer:3,
+    explanation:"A Chapter 7 bankruptcy stays on your credit report for 10 years, while Chapter 13 stays for 7 years. This is why bankruptcy is considered a last resort — it significantly impacts your ability to get credit.",
+    tip:"Even with bankruptcy, many people see credit score improvements within 1 to 2 years by practicing good credit habits consistently."
+  },
+  {
+    category:"Investing", difficulty:2,
+    question:"What is a 'bull market'?",
+    options:["A market that has fallen 20% or more from a recent high","A market characterized by rising prices and investor optimism","A commodities market focused on cattle","A highly volatile trading environment"],
+    answer:1,
+    explanation:"A bull market refers to a period of rising stock prices (typically a 20% or more rise from a recent low) with investor optimism. The opposite is a bear market — a 20% or more decline. Both are normal parts of economic cycles.",
+    tip:"The S&P 500 has historically been in a bull market about 78% of the time. Long-term investors benefit by staying invested through both."
+  },
+  {
+    category:"Budgeting", difficulty:1,
+    question:"What is the difference between a 'need' and a 'want' in personal finance?",
+    options:["They are the same thing","Needs are things essential for survival and basic function; wants are non-essential desires","Wants are more important than needs","Needs cost more than wants"],
+    answer:1,
+    explanation:"Needs are essential: housing, food, utilities, basic clothing, transportation to work. Wants are non-essential: dining out, streaming services, vacations, designer clothes. Distinguishing the two is foundational to budgeting.",
+    tip:"Before any purchase, ask yourself: Is this a need or a want? You can still enjoy wants — just budget for them intentionally."
+  },
+  {
+    category:"Taxes", difficulty:2,
+    question:"What is a 'W-4 form' used for?",
+    options:["Reporting freelance income to the IRS","Filing your annual tax return","Telling your employer how much federal income tax to withhold from your paycheck","Applying for a tax extension"],
+    answer:2,
+    explanation:"The W-4 form tells your employer how much federal income tax to withhold from your paycheck. Adjusting it correctly helps you avoid owing a large tax bill or giving the government an interest-free loan.",
+    tip:"Update your W-4 after major life changes: marriage, having a child, buying a home, or starting a second job."
+  },
+  {
+    category:"Insurance", difficulty:1,
+    question:"What is 'term life insurance'?",
+    options:["Permanent coverage that builds cash value","Coverage that lasts your entire life","Affordable coverage for a specific period (like 20 years) that pays out if you die during that term","Insurance tied to your mortgage only"],
+    answer:2,
+    explanation:"Term life insurance provides coverage for a specific period (10, 20, or 30 years) at a fixed cost. If you die during the term, your beneficiaries receive the death benefit. It is the most affordable way to get substantial coverage.",
+    tip:"Most financial experts recommend term life insurance over whole or universal life for its simplicity and affordability."
+  },
+  {
+    category:"Retirement", difficulty:2,
+    question:"What is the 'Rule of 72' in personal finance?",
+    options:["You need 72% of your income in retirement","Dividing 72 by your interest rate tells you roughly how many years to double your money","Retire by age 72 to maximize Social Security","Keep 72% of your portfolio in stocks"],
+    answer:1,
+    explanation:"The Rule of 72 is a quick mental math trick: divide 72 by your annual return rate to estimate how long it takes to double your money. At 8% return: 72 divided by 8 equals 9 years to double.",
+    tip:"This works for debt too! At 18% credit card interest: 72 divided by 18 equals 4 years for your debt to double if you only pay minimums."
+  },
+  {
+    category:"Credit", difficulty:2,
+    question:"What is a 'hard inquiry' on your credit report?",
+    options:["Checking your own credit score","When a lender checks your credit as part of a lending decision, which may lower your score slightly","A fraud investigation by a credit bureau","A request to increase your credit limit"],
+    answer:1,
+    explanation:"A hard inquiry occurs when a lender pulls your credit for a loan or credit application. It can lower your score by a few points and stays on your report for 2 years. Checking your own credit is a soft inquiry and does not affect your score.",
+    tip:"When shopping for mortgage or auto loans, multiple hard inquiries within 14 to 45 days count as just one inquiry — so rate-shop freely!"
+  },
+  {
+    category:"Investing", difficulty:3,
+    question:"What is 'asset allocation'?",
+    options:["The fees charged by your broker","How you divide investments among different asset classes like stocks, bonds, and cash","Choosing which individual stocks to buy","Timing the market to maximize returns"],
+    answer:1,
+    explanation:"Asset allocation is how you divide your portfolio among different asset classes — stocks (growth), bonds (stability), cash, real estate, and more. Your ideal allocation depends on your age, risk tolerance, and financial goals.",
+    tip:"A simple starting point: subtract your age from 110 to get your stock percentage. At 30: 80% stocks, 20% bonds. Adjust based on your risk tolerance."
+  },
+  {
+    category:"Budgeting", difficulty:1,
+    question:"What is 'lifestyle inflation' (also called lifestyle creep)?",
+    options:["The rising cost of living over time","Increasing your spending as your income increases, so your savings do not grow","Inflation that only affects luxury goods","Upgrading your home to match your income"],
+    answer:1,
+    explanation:"Lifestyle inflation means as you earn more, you spend more — nicer car, bigger apartment, more dining out — leaving you with the same amount saved despite a higher income. It is one of the biggest barriers to wealth-building.",
+    tip:"When you get a raise, immediately increase your retirement contributions or savings before you have a chance to spend it."
+  },
+  {
+    category:"Debt", difficulty:2,
+    question:"What is a 'debt-to-income ratio' (DTI) and why does it matter?",
+    options:["The interest rate on all your debts combined","The percentage of your gross monthly income that goes to debt payments — lenders use it to assess creditworthiness","The total amount of debt you carry","A credit score calculation"],
+    answer:1,
+    explanation:"DTI equals monthly debt payments divided by gross monthly income. Lenders use it to evaluate loan applications. A DTI below 36% is generally considered healthy. Above 43% may make it hard to qualify for mortgages.",
+    tip:"To improve your DTI, either pay down debt or increase your income (or both!). Paying off a car loan can dramatically improve your DTI."
+  },
+  {
+    category:"Investing", difficulty:3,
+    question:"What is an 'expense ratio' in mutual funds or ETFs?",
+    options:["The percentage of profit the fund pays out as dividends","A fee charged when you buy or sell fund shares","The annual fee charged as a percentage of your investment to cover fund operating costs","The fund's return compared to the S&P 500"],
+    answer:2,
+    explanation:"The expense ratio is the annual cost of owning a fund, expressed as a percentage. A 1% expense ratio on $100,000 costs $1,000 per year. Over decades, even a 0.5% difference can cost tens of thousands in lost returns.",
+    tip:"Index funds from Vanguard, Fidelity, and Schwab often have expense ratios below 0.10%. Always check this before investing."
+  },
+  {
+    category:"Financial Planning", difficulty:2,
+    question:"What is 'net worth' and how is it calculated?",
+    options:["Your total annual income after taxes","Total assets minus total liabilities — what you truly own financially","The value of your investment portfolio","Your credit score expressed in dollars"],
+    answer:1,
+    explanation:"Net worth equals everything you own (assets: savings, investments, home value, car) minus everything you owe (liabilities: mortgage, loans, credit card debt). It is the best single number to track your overall financial health.",
+    tip:"Track your net worth monthly or quarterly. Seeing it grow (even slowly) is one of the most motivating things in personal finance. Apps like Personal Capital or Mint can automate this."
+  }
+];
+
+// ========================
+// STATE
+// ========================
+let state = {
+  currentDay:     1,
+  today:          1,
+  selectedOption: null,
+  answered:       false,
+  history:        {},
+  streak:         0,
+  totalCorrect:   0,
+  totalPlayed:    0
+};
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('sbu_finquiz_state');
+    if (saved) {
+      const p = JSON.parse(saved);
+      state.history      = p.history      || {};
+      state.streak       = p.streak       || 0;
+      state.totalCorrect = p.totalCorrect || 0;
+      state.totalPlayed  = p.totalPlayed  || 0;
+    }
+  } catch(e) {}
+  const now = new Date();
+  const d   = now.getDate(), m = now.getMonth();
+  state.today = (m === 3 && d >= 1 && d <= 30) ? d : 30; // demo: all days open
+  state.currentDay = state.today;
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('sbu_finquiz_state', JSON.stringify({
+      history: state.history, streak: state.streak,
+      totalCorrect: state.totalCorrect, totalPlayed: state.totalPlayed
+    }));
+  } catch(e) {}
+}
+
+// ========================
+// ANNOUNCE TO SCREEN READER
+// ========================
+function announce(msg) {
+  const lr = document.getElementById('liveRegion');
+  lr.textContent = '';
+  setTimeout(() => { lr.textContent = msg; }, 60);
+}
+
+// ========================
+// CALENDAR
+// ========================
+function buildCalendar() {
+  const strip = document.getElementById('calendarStrip');
+  strip.innerHTML = '';
+  for (let d = 1; d <= 30; d++) {
+    const btn = document.createElement('button');
+    btn.className   = 'cal-day';
+    btn.textContent = d;
+    const h = state.history[d];
+
+    if (h) {
+      btn.classList.add(h.correct ? 'correct' : 'wrong');
+      btn.setAttribute('aria-label', `April ${d} — ${h.correct ? 'Answered correctly' : 'Answered incorrectly'}`);
+    } else if (d === state.currentDay) {
+      btn.classList.add('today');
+      btn.setAttribute('aria-label', `April ${d} — Today`);
+      btn.setAttribute('aria-current', 'date');
+    } else if (d > state.today) {
+      btn.classList.add('future');
+      btn.setAttribute('aria-label', `April ${d} — Not yet available`);
+      btn.setAttribute('aria-disabled', 'true');
+      btn.setAttribute('tabindex', '-1');
+    } else {
+      btn.setAttribute('aria-label', `April ${d} — Not yet answered`);
+    }
+
+    if (d <= state.today) {
+      btn.addEventListener('click', () => { state.currentDay = d; renderDay(); });
+    }
+    strip.appendChild(btn);
+  }
+  const dayEl = strip.children[state.currentDay - 1];
+  if (dayEl) dayEl.scrollIntoView({ block: 'nearest', inline: 'center' });
+}
+
+// ========================
+// RENDER DAY
+// ========================
+function renderDay() {
+  const h = state.history[state.currentDay];
+
+  document.getElementById('currentDayBadge').textContent = state.currentDay;
+  document.getElementById('currentDayNav').textContent   = `Day ${state.currentDay}`;
+  document.getElementById('currentDayNav').setAttribute('aria-label', `Currently viewing Day ${state.currentDay}`);
+  document.getElementById('streakCount').textContent     = state.streak;
+
+  const done = Object.keys(state.history).length;
+  const pct  = (done / 30) * 100;
+  const pw   = document.getElementById('progressBarWrap');
+  document.getElementById('progressBar').style.width = pct + '%';
+  pw.setAttribute('aria-valuenow',   done);
+  pw.setAttribute('aria-valuetext',  `${done} of 30 days completed`);
+
+  buildCalendar();
+
+  // Hide all panels
+  document.getElementById('introScreen').style.display    = 'none';
+  document.getElementById('questionScreen').style.display = 'none';
+  document.getElementById('resultScreen').classList.remove('show');
+  document.getElementById('alreadyPlayed').classList.remove('show');
+
+  if (!h) {
+    state.selectedOption = null;
+    state.answered = false;
+    showQuestionScreen(questions[state.currentDay - 1]);
+  } else if (state.currentDay === state.today) {
+    // Today — already answered, show result/stats screen
+    showResultScreen(h.correct, true);
+  } else {
+    // Past day — show the question in read-only review mode
+    showReviewScreen(state.currentDay, h);
+  }
+}
+
+// ========================
+// QUESTION SCREEN
+// ========================
+function showQuestionScreen(q) {
+  const diffLabels = ['', 'Beginner', 'Intermediate', 'Advanced'];
+  document.getElementById('questionScreen').style.display = 'block';
+  document.getElementById('explanationPanel').className   = 'explanation-panel';
+  document.getElementById('explanationPanel').removeAttribute('aria-live');
+
+  // Re-enable live region after panel is hidden
+  setTimeout(() => {
+    document.getElementById('explanationPanel').setAttribute('aria-live', 'polite');
+  }, 100);
+
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.style.display = 'block';
+  submitBtn.textContent   = 'Submit Answer';
+  submitBtn.onclick       = submitAnswer;
+  submitBtn.disabled      = true;
+  submitBtn.setAttribute('aria-disabled', 'true');
+
+  // Category
+  const catEl = document.getElementById('categoryTag');
+  catEl.textContent = q.category;
+  catEl.setAttribute('aria-label', `Category: ${q.category}`);
+
+  // Difficulty dots + accessible label
+  const diffEl = document.getElementById('difficultyDots');
+  diffEl.innerHTML = '';
+  diffEl.setAttribute('aria-label', `Difficulty: ${diffLabels[q.difficulty]}`);
+  for (let i = 1; i <= 3; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'diff-dot' + (i <= q.difficulty ? ' active' : '');
+    dot.setAttribute('aria-hidden', 'true');
+    diffEl.appendChild(dot);
+  }
+
+  // Question heading
+  document.getElementById('questionHeading').textContent = q.question;
+
+  // Hide review banner
+  document.getElementById('reviewBanner').style.display = 'none';
+
+  // Options — radio pattern; restore role in case we came from review mode
+  const grid    = document.getElementById('optionsGrid');
+  const letters = ['A', 'B', 'C', 'D'];
+  grid.innerHTML = '';
+  grid.setAttribute('role', 'radiogroup');
+  grid.setAttribute('aria-required', 'true');
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.setAttribute('role',         'radio');
+    btn.setAttribute('aria-checked', 'false');
+    btn.setAttribute('aria-label',   `Option ${letters[i]}: ${opt}`);
+    btn.innerHTML = `
+      <div class="option-fill" aria-hidden="true"></div>
+      <div class="option-letter" aria-hidden="true">${letters[i]}</div>
+      <div class="option-text">${opt}</div>
+    `;
+    btn.addEventListener('click', () => selectOption(i));
+    grid.appendChild(btn);
+  });
+
+  // Move focus to question
+  setTimeout(() => {
+    const h2 = document.getElementById('questionHeading');
+    h2.setAttribute('tabindex', '-1');
+    h2.focus();
+  }, 100);
+}
+
+// ========================
+// REVIEW SCREEN (read-only past-day view)
+// ========================
+function showReviewScreen(day, h) {
+  const q       = questions[day - 1];
+  const letters = ['A', 'B', 'C', 'D'];
+  const diffLabels = ['', 'Beginner', 'Intermediate', 'Advanced'];
+
+  // Show question screen, hide others
+  document.getElementById('questionScreen').style.display = 'block';
+  document.getElementById('resultScreen').classList.remove('show');
+  document.getElementById('alreadyPlayed').classList.remove('show');
+
+  // Show review banner
+  const banner = document.getElementById('reviewBanner');
+  banner.style.display = 'flex';
+  document.getElementById('reviewBannerText').textContent =
+    `Reviewing Day ${day} — ${h.correct ? 'You got this right' : 'You got this wrong'}`;
+
+  // Category & difficulty (same as live mode)
+  const catEl = document.getElementById('categoryTag');
+  catEl.textContent = q.category;
+  catEl.setAttribute('aria-label', `Category: ${q.category}`);
+
+  const diffEl = document.getElementById('difficultyDots');
+  diffEl.innerHTML = '';
+  diffEl.setAttribute('aria-label', `Difficulty: ${diffLabels[q.difficulty]}`);
+  for (let i = 1; i <= 3; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'diff-dot' + (i <= q.difficulty ? ' active' : '');
+    dot.setAttribute('aria-hidden', 'true');
+    diffEl.appendChild(dot);
+  }
+
+  // Question heading
+  document.getElementById('questionHeading').textContent = q.question;
+
+  // Options — all disabled, correct highlighted, user's wrong pick highlighted
+  const grid = document.getElementById('optionsGrid');
+  grid.innerHTML = '';
+  // Switch radiogroup to a plain list for review (no interactive semantics needed)
+  grid.setAttribute('role', 'list');
+  grid.removeAttribute('aria-required');
+
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'option-btn';
+    btn.setAttribute('role', 'listitem');
+
+    if (i === q.answer) {
+      btn.classList.add('correct');
+      btn.setAttribute('aria-label', `Option ${letters[i]}: ${opt} — Correct answer`);
+    } else if (h.chosen !== undefined && i === h.chosen && !h.correct) {
+      btn.classList.add('wrong');
+      btn.setAttribute('aria-label', `Option ${letters[i]}: ${opt} — Your selection (incorrect)`);
+    } else {
+      btn.setAttribute('aria-label', `Option ${letters[i]}: ${opt}`);
+    }
+
+    btn.innerHTML = `
+      <div class="option-fill" aria-hidden="true"></div>
+      <div class="option-letter" aria-hidden="true">${letters[i]}</div>
+      <div class="option-text">${opt}</div>
+    `;
+    grid.appendChild(btn);
+  });
+
+  // Hide submit button — not needed in review
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.style.display = 'none';
+
+  // Show explanation immediately
+  const panel = document.getElementById('explanationPanel');
+  // Suppress aria-live during review population (no need to announce on revisit)
+  panel.removeAttribute('aria-live');
+  panel.className = `explanation-panel show ${h.correct ? 'correct-panel' : 'wrong-panel'}`;
+
+  const resultWord = h.correct
+    ? 'Correct — You got this one!'
+    : `The correct answer was Option ${letters[q.answer]}: ${q.options[q.answer]}.`;
+
+  const header = document.getElementById('explanationHeader');
+  header.className = `explanation-header ${h.correct ? 'correct-h' : 'wrong-h'}`;
+  const iconId = h.correct ? '#icon-check-circle' : '#icon-x-circle';
+  header.innerHTML = `
+    <svg class="icon icon-md" aria-hidden="true"><use href="${iconId}"/></svg>
+    <span>${resultWord}</span>
+  `;
+
+  document.getElementById('explanationText').textContent = q.explanation;
+  document.getElementById('tipBox').innerHTML =
+    `<svg class="icon icon-md tip-icon" aria-hidden="true"><use href="#icon-lightbulb"/></svg><span class="tip-text">Pro Tip: ${q.tip}</span>`;
+
+  // Move focus to question heading
+  setTimeout(() => {
+    const h2 = document.getElementById('questionHeading');
+    h2.setAttribute('tabindex', '-1');
+    h2.focus();
+  }, 100);
+}
+
+function selectOption(index) {
+  if (state.answered) return;
+  state.selectedOption = index;
+  const q       = questions[state.currentDay - 1];
+  const letters = ['A','B','C','D'];
+  const btns    = document.querySelectorAll('.option-btn');
+  btns.forEach((b, i) => {
+    b.classList.toggle('selected', i === index);
+    b.setAttribute('aria-checked', i === index ? 'true' : 'false');
+  });
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.disabled = false;
+  submitBtn.setAttribute('aria-disabled', 'false');
+  announce(`Selected Option ${letters[index]}: ${q.options[index]}`);
+}
+
+function submitAnswer() {
+  if (state.selectedOption === null || state.answered) return;
+  state.answered = true;
+
+  const q       = questions[state.currentDay - 1];
+  const correct = state.selectedOption === q.answer;
+  const letters = ['A','B','C','D'];
+
+  state.history[state.currentDay] = { correct, answered: true, chosen: state.selectedOption };
+  state.totalPlayed++;
+  if (correct) {
+    state.totalCorrect++;
+    let s = 0;
+    for (let d = state.currentDay; d >= 1; d--) {
+      if (state.history[d]?.answered) s++; else break;
+    }
+    state.streak = s;
+  } else {
+    let s = 0;
+    for (let d = state.currentDay - 1; d >= 1; d--) {
+      if (state.history[d]?.correct) s++; else break;
+    }
+    state.streak = s;
+  }
+  saveState();
+  document.getElementById('streakCount').textContent = state.streak;
+
+  // Update option states
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    btn.classList.remove('selected');
+    btn.setAttribute('aria-checked', 'false');
+    if (i === q.answer) {
+      btn.classList.add('correct');
+      btn.setAttribute('aria-label', `Option ${letters[i]}: ${q.options[i]} — Correct answer`);
+    } else if (i === state.selectedOption && !correct) {
+      btn.classList.add('wrong');
+      btn.setAttribute('aria-label', `Option ${letters[i]}: ${q.options[i]} — Your incorrect selection`);
+    }
+  });
+
+  // Explanation
+  const panel  = document.getElementById('explanationPanel');
+  panel.className = `explanation-panel show ${correct ? 'correct-panel' : 'wrong-panel'}`;
+
+  const resultWord = correct
+    ? 'Correct — Well done!'
+    : `Not quite. The correct answer was Option ${letters[q.answer]}: ${q.options[q.answer]}.`;
+
+  const header = document.getElementById('explanationHeader');
+  header.className   = `explanation-header ${correct ? 'correct-h' : 'wrong-h'}`;
+
+  // Icon + text (icon is aria-hidden, text is the accessible label)
+  const iconId = correct ? '#icon-check-circle' : '#icon-x-circle';
+  header.innerHTML = `
+    <svg class="icon icon-md" aria-hidden="true"><use href="${iconId}"/></svg>
+    <span>${resultWord}</span>
+  `;
+
+  document.getElementById('explanationText').textContent = q.explanation;
+  document.getElementById('tipBox').innerHTML =
+    `<svg class="icon icon-md tip-icon" aria-hidden="true"><use href="#icon-lightbulb"/></svg><span class="tip-text">Pro Tip: ${q.tip}</span>`;
+
+  // Announce to SR (explanation panel is aria-live, but we also do explicit announce for fallback)
+  announce(`${resultWord} ${q.explanation}`);
+
+  // Update submit
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.textContent = 'See Results';
+  submitBtn.disabled    = false;
+  submitBtn.setAttribute('aria-disabled', 'false');
+  submitBtn.onclick = () => { buildCalendar(); showResultScreen(correct, false); };
+
+  if (correct) {
+    launchConfetti();
+  } else {
+    const card = document.getElementById('quizCard');
+    card.classList.add('shake');
+    setTimeout(() => card.classList.remove('shake'), 500);
+  }
+}
+
+// ========================
+// RESULT SCREEN
+// ========================
+function showResultScreen(correct, returning) {
+  document.getElementById('questionScreen').style.display = 'none';
+  const rs = document.getElementById('resultScreen');
+  rs.classList.add('show');
+
+  // Swap result icon
+  const iconCircle = document.getElementById('resultIconCircle');
+  const iconUse    = document.getElementById('resultIcon');
+  if (correct) {
+    iconCircle.className = 'result-icon-circle win';
+    iconUse.querySelector('use').setAttribute('href', '#icon-star');
+  } else {
+    iconCircle.className = 'result-icon-circle lose';
+    iconUse.querySelector('use').setAttribute('href', '#icon-book');
+  }
+
+  const heading = document.getElementById('resultHeading');
+  heading.textContent = correct ? 'Nailed it!' : 'Keep Learning!';
+  heading.className   = `result-heading ${correct ? 'win' : 'lose'}`;
+
+  const subtitle = correct
+    ? `Day ${state.currentDay} complete — come back tomorrow for Day ${Math.min(state.currentDay + 1, 30)}!`
+    : "Don't worry! Every question is a chance to learn something new.";
+  document.getElementById('resultSubtitle').textContent = subtitle;
+
+  // Stats — add accessible pairing via aria-labelledby
+  const sC = document.getElementById('statCorrect');
+  const sS = document.getElementById('statStreak');
+  const sT = document.getElementById('statTotal');
+  sC.textContent = state.totalCorrect;
+  sS.textContent = state.streak;
+  sT.textContent = state.totalPlayed;
+  sC.setAttribute('aria-label', `${state.totalCorrect} days answered correctly`);
+  sS.setAttribute('aria-label', `${state.streak} day streak`);
+  sT.setAttribute('aria-label', `${state.totalPlayed} days played`);
+
+  buildScoreGrid();
+  buildShareText(correct);
+
+  announce(`Quiz complete. ${heading.textContent}. ${subtitle} Correct answers: ${state.totalCorrect}. Streak: ${state.streak} days.`);
+
+  setTimeout(() => {
+    heading.setAttribute('tabindex', '-1');
+    heading.focus();
+  }, 150);
+}
+
+function buildScoreGrid() {
+  const grid = document.getElementById('scoreGrid');
+  grid.innerHTML = '';
+  let c = 0, p = 0;
+  for (let d = 1; d <= 30; d++) {
+    const h = state.history[d];
+    if (h) { p++; if (h.correct) c++; }
+  }
+  grid.setAttribute('aria-label', `Score grid: ${c} correct out of ${p} days played in April`);
+  for (let d = 1; d <= 30; d++) {
+    const sq = document.createElement('div');
+    sq.className = 'score-square';
+    sq.setAttribute('aria-hidden', 'true');
+    const h = state.history[d];
+    if (h) {
+      sq.classList.add(h.correct ? 'sq-win' : 'sq-lose');
+      sq.textContent = h.correct ? '+' : '-';
+    } else {
+      sq.classList.add('sq-empty');
+      sq.textContent = d;
+    }
+    grid.appendChild(sq);
+  }
+}
+
+function buildShareText(correct) {
+  const result   = correct ? '[Correct]' : '[Incorrect]';
+  let   scoreRow = '';
+  for (let d = 1; d <= 30; d++) {
+    const h = state.history[d];
+    scoreRow += h ? (h.correct ? '[+]' : '[-]') : '[ ]';
+    if (d % 10 === 0) scoreRow += '\n';
+  }
+  document.getElementById('shareText').textContent =
+    `SBU FinQuiz — April Financial Literacy Month\nDay ${state.currentDay}/30 ${result}\nStreak: ${state.streak} day streak\n\n${scoreRow.trim()}\n\nStony Brook University — College of Business\n#FinancialLiteracy #SBU #FinQuiz`;
+}
+
+function copyShare() {
+  const el = document.getElementById('shareText');
+  if (!el.textContent) { const h = state.history[state.currentDay]; buildShareText(h?.correct || false); }
+  navigator.clipboard.writeText(el.textContent)
+    .then(() => { showToast('Result copied to clipboard!'); announce('Result copied to clipboard.'); })
+    .catch(() => { el.classList.add('show'); el.focus(); showToast('Select and copy the text shown below.'); });
+}
+
+// ========================
+// ANIMATIONS
+// ========================
+function launchConfetti() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const container = document.getElementById('confettiContainer');
+  const colors    = ['#990000','#D52027','#6B000D','#1791AD','#00549A','#F1EA86','#BCCF9D','#ffffff'];
+  for (let i = 0; i < 60; i++) {
+    const p    = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.setAttribute('aria-hidden', 'true');
+    const sz = Math.random() * 8 + 5;
+    p.style.cssText = `left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-delay:${Math.random()}s;animation-duration:${Math.random()*1.5+1.5}s;`;
+    container.appendChild(p);
+    setTimeout(() => p.remove(), 3500);
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ========================
+// NAV
+// ========================
+function startQuiz() {
+  document.getElementById('introScreen').style.display = 'none';
+  renderDay();
+}
+function prevDay() {
+  if (state.currentDay > 1) { state.currentDay--; renderDay(); announce(`Viewing Day ${state.currentDay}`); }
+  else { showToast('You are on Day 1.'); announce('You are already on Day 1.'); }
+}
+function nextDay() {
+  if (state.currentDay < state.today && state.currentDay < 30) { state.currentDay++; renderDay(); announce(`Viewing Day ${state.currentDay}`); }
+  else { showToast('That day is not available yet.'); announce('That day is not available yet.'); }
+}
+
+// Countdown
+function updateTimer() {
+  const now = new Date(), tom = new Date(now);
+  tom.setDate(tom.getDate() + 1); tom.setHours(0,0,0,0);
+  const diff = tom - now;
+  const hh = Math.floor(diff/3600000), mm = Math.floor((diff%3600000)/60000), ss = Math.floor((diff%60000)/1000);
+  document.getElementById('nextQuizTimer').textContent =
+    `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+}
+
+// ========================
+// INIT
+// ========================
+function init() {
+  loadState();
+  buildCalendar();
+
+  const done = Object.keys(state.history).length;
+  const pw   = document.getElementById('progressBarWrap');
+  document.getElementById('progressBar').style.width = (done/30*100) + '%';
+  pw.setAttribute('aria-valuenow',  done);
+  pw.setAttribute('aria-valuetext', `${done} of 30 days completed`);
+  document.getElementById('streakCount').textContent     = state.streak;
+  document.getElementById('currentDayBadge').textContent = state.currentDay;
+  document.getElementById('currentDayNav').textContent   = `Day ${state.currentDay}`;
+
+  if (done === 0) {
+    document.getElementById('introScreen').style.display    = 'block';
+    document.getElementById('questionScreen').style.display = 'none';
+  } else {
+    renderDay();
+  }
+  setInterval(updateTimer, 1000);
+}
+
+init();
+</script>
+</body>
+</html>
